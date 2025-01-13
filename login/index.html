@@ -1,0 +1,45 @@
+<?php
+// Connect to SQLite database
+$db = new PDO('sqlite:users.db');
+
+// Check if the form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Prepare and execute SQL to fetch user data
+    $stmt = $db->prepare("SELECT * FROM users WHERE username = :username");
+    $stmt->bindParam(':username', $username);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Check if the user exists and verify the password
+    if ($user && password_verify($password, $user['password'])) {
+        // Successful login, redirect to index.html
+        header("Location: index.html");
+        exit();
+    } else {
+        echo "Invalid username or password.";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form method="POST">
+        <label for="username">Username:</label><br>
+        <input type="text" name="username" required><br><br>
+        <label for="password">Password:</label><br>
+        <input type="password" name="password" required><br><br>
+        <input type="submit" value="Login">
+    </form>
+</body>
+</html>
+
